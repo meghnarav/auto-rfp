@@ -2,6 +2,11 @@ import streamlit as st
 import google.generativeai as genai
 from pypdf import PdfReader
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+api_key = os.getenv("GEMINI_API_KEY")
+
 
 # --- INITIAL SETUP ---
 st.set_page_config(page_title="Auto-RFP", page_icon="🏦", layout="wide")

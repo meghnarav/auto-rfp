@@ -30,7 +30,7 @@ api_key = st.sidebar.text_input("Gemini API Key", value=env_key if env_key else 
 
 if api_key:
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-pro')
+    model = genai.GenerativeModel('gemini-2.5-flash')
 else:
     st.warning("Please enter your Gemini API Key in the sidebar to begin.")
     st.stop() # Stops the app here until a key is provided

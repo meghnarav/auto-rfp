@@ -30,76 +30,65 @@ def extract_metadata(text):
         "emd": emd.group(2) if emd else "TBD"
     }
 
-# --- 3. PAGE SETUP ---
+# --- 3. PAGE SETUP & CSS (The Force-Fix) ---
 st.set_page_config(page_title="SafeDraft AI | Indian Bank", page_icon="🏦", layout="wide")
 
+# We use a single f-string to ensure no weird character breaks the CSS
 st.markdown(f"""
     <style>
-    /* Import Google Fonts */
+    /* 1. Global Font and Background */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
-    html, body, [class*="css"]  {
-        font-family: 'Inter', sans-serif;
-    }
-
-    /* Main App Background */
-    .stApp {
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    }
     
-    /* Sidebar "Glass" Effect */
-    [data-testid="stSidebar"] {
-        background-color: rgba(255, 255, 255, 0.8) !important;
-        backdrop-filter: blur(10px);
-        border-right: 1px solid rgba(0, 0, 0, 0.05);
-    }
+    .stApp {{
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+        font-family: 'Inter', sans-serif !important;
+    }}
+
+    /* 2. Sidebar Styling */
+    section[data-testid="stSidebar"] {{
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        border-right: 1px solid #e2e8f0 !important;
+    }}
+
+    /* 3. Metric Cards (The "React" Look) */
+    div[data-testid="stMetric"] {{
+        background: white !important;
+        border-radius: 12px !important;
+        padding: 15px !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #e2e8f0 !important;
+    }}
+
+    /* 4. Tab Styling */
+    .stTabs [data-baseweb="tab-list"] {{
+        gap: 10px !important;
+    }}
     
-    /* Metric Cards - React Style */
-    div[data-testid="stMetric"] {
-        background: white;
-        border-radius: 15px !important;
-        padding: 20px !important;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        border: 1px solid #edf2f7;
-    }
-
-    /* Tab Styling - The "Shadcn" Look */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: #f1f5f9;
-        padding: 6px;
-        border-radius: 12px;
-    }
-
-    .stTabs [data-baseweb="tab"] {
-        border-radius: 8px;
-        padding: 10px 20px;
-        background-color: transparent;
-        border: none;
-        color: #64748b;
-        transition: all 0.2s;
-    }
-
-    .stTabs [aria-selected="true"] {
+    .stTabs [data-baseweb="tab"] {{
         background-color: #ffffff !important;
-        color: #00529b !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
+        border-radius: 8px 8px 0px 0px !important;
+        padding: 10px 20px !important;
+        border: 1px solid #e2e8f0 !important;
+    }}
 
-    /* Big Blue "Action" Button */
-    .stButton>button {
-        background: linear-gradient(90deg, #00529b 0%, #0073cf 100%);
-        color: white;
-        border-radius: 10px;
-        border: none;
-        padding: 0.6rem 1rem;
-        font-weight: 600;
-        transition: transform 0.1s;
-    }
-    .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 82, 155, 0.3);
-    }
+    .stTabs [aria-selected="true"] {{
+        background-color: #00529b !important;
+        color: white !important;
+    }}
+
+    /* 5. Blue Buttons */
+    .stButton>button {{
+        background: #00529b !important;
+        color: white !important;
+        border-radius: 8px !important;
+        border: none !important;
+        font-weight: 600 !important;
+        transition: 0.3s !important;
+    }}
+    .stButton>button:hover {{
+        background: #003d73 !important;
+        box-shadow: 0 4px 12px rgba(0, 82, 155, 0.2) !important;
+    }}
     </style>
     """, unsafe_allow_html=True)
 

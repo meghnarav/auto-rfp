@@ -2,112 +2,108 @@ import streamlit as st
 import google.generativeai as genai
 from pypdf import PdfReader
 import os
-import math
 from dotenv import load_dotenv
 from fpdf import FPDF
+import re
 
-# --- 1. HELPERS & CONFIG ---
+# --- 1. CONFIG & SYSTEM PROMPT ---
 load_dotenv()
+SYSTEM_PROMPT = "You are an expert Banking Procurement Officer at Indian Bank. Use formal, legally-compliant language. Always refer to banking standards and DFS/IBA guidelines."
 
-class PDF(FPDF):
-    def header(self):
-        self.set_font('Arial', 'B', 12)
-        self.cell(0, 10, 'Auto-RFP System - Indian Bank x VIT', 0, 1, 'C')
-
+# --- 2. HELPERS ---
 def create_pdf(text_content):
-    pdf = PDF()
+    pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=11)
-    # Basic cleanup for special characters
-    clean_text = text_content.replace('₹', 'Rs.').encode('ascii', 'ignore').decode('ascii')
+    # Fixing the Latin-1/Rupee crash:
+    clean_text = text_content.replace('₹', 'Rs.').replace('"', '"').replace('"', '"')
+    clean_text = clean_text.encode('latin-1', 'replace').decode('latin-1')
     pdf.multi_cell(0, 10, txt=clean_text)
-    return pdf.output()
+    return pdf.output(dest='S')
 
-# --- 2. PAGE SETUP ---
-st.set_page_config(page_title="Auto-RFP Pro", page_icon="🏦", layout="wide")
+def extract_metadata(text):
+    # Quick regex vibe-check for metadata
+    deadline = re.search(r"(\d{2}[-/]\d{2}[-/]\d{4})", text)
+    emd = re.search(r"(EMD|Earnest Money).*?(\d+[,.]\d+)", text)
+    return {
+        "deadline": deadline.group(1) if deadline else "Not Detected",
+        "emd": emd.group(2) if emd else "TBD"
+    }
+
+# --- 3. PAGE SETUP (The Vibe Overhaul) ---
+st.set_page_config(page_title="Auto-RFP Pro | Indian Bank", page_icon="🏦", layout="wide")
+
+# Custom CSS for that "Bank App" look
 st.markdown("""
     <style>
-    .stMetric { background-color: #f0f2f6; padding: 10px; border-radius: 10px; }
+    .stMetric { background-color: #ffffff; border-left: 5px solid #00529b; padding: 10px; border-radius: 5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+    [data-testid="stSidebar"] { background-color: #f0f4f8; }
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🏦 Auto-RFP: Enterprise Lifecycle Management")
-st.caption("Solo Developer Edition | Powered by Gemini 2.5 Flash")
-
-# --- 3. API KEY & MODEL ---
-env_key = os.getenv("GEMINI_API_KEY")
-api_key = st.sidebar.text_input("Gemini API Key", value=env_key or "", type="password")
-
+# --- 4. API & MODEL ---
+api_key = st.sidebar.text_input("Gemini API Key", type="password")
 if not api_key:
-    st.warning("👈 Enter your API Key to unlock the vault.")
+    st.info("👈 Enter API Key to begin.")
     st.stop()
 
 genai.configure(api_key=api_key)
-# Enable logprobs for confidence scoring
-model = genai.GenerativeModel(
-    'gemini-2.0-flash', # Updated to the latest stable flash
-    generation_config={"response_logprobs": True} 
-)
+model = genai.GenerativeModel('gemini-1.5-flash') # Using 1.5 for better context handling
 
-# --- 4. SIDEBAR: DATA INGESTION ---
-st.sidebar.header("📁 Document Ingestion")
-uploaded_file = st.sidebar.file_uploader("Upload Master RFP", type="pdf")
+# --- 5. SIDEBAR: BRANDING & METRICS ---
+st.sidebar.title("🏦 Indian Bank x VIT")
+st.sidebar.caption("FinTech Cybersecurity Hackathon 2025")
 
-if uploaded_file:
-    with st.status("Ingesting Document...", expanded=False) as status:
-        reader = PdfReader(uploaded_file)
-        raw_text = "".join([page.extract_text() for page in reader.pages])
-        st.session_state.raw_text = raw_text
-        status.update(label="RFP Successfully Indexed!", state="complete")
+uploaded_files = st.sidebar.file_uploader("Knowledge Memory: Upload Past RFPs", type="pdf", accept_multiple_files=True)
+
+all_text = ""
+if uploaded_files:
+    with st.sidebar.status("🔄 Processing Documents...") as status:
+        for file in uploaded_files:
+            reader = PdfReader(file)
+            all_text += "".join([page.extract_text() for page in reader.pages])
+        meta = extract_metadata(all_text)
+        status.update(label="System Ready", state="complete")
     
-    # Show Metadata Metrics
-    col1, col2 = st.sidebar.columns(2)
-    col1.metric("Pages", len(reader.pages))
-    col2.metric("Tokens (est)", len(raw_text)//4)
+    st.sidebar.divider()
+    st.sidebar.metric("Detected Deadline", meta['deadline'])
+    st.sidebar.metric("EMD Amount", f"Rs. {meta['emd']}")
+    st.sidebar.metric("Total Documents", len(uploaded_files))
 
-# --- 5. MAIN WORKSPACE ---
-tab1, tab2, tab3 = st.tabs(["📜 Smart Drafting", "🔍 Grounded QA", "📑 Corrigendum Builder"])
+# --- 6. MAIN WORKSPACE ---
+st.title("Auto-RFP: Lifecycle Management")
+tab1, tab2, tab3 = st.tabs(["📜 Drafting", "🔍 Grounded QA", "📑 Corrigendum"])
 
 with tab1:
-    st.subheader("Automated Clause Generation")
-    context = st.text_input("Describe the new section (e.g., 'Cybersecurity compliance for cloud hosting')")
-    if st.button("Generate Section", type="primary"):
-        with st.status("Drafting official clauses...") as s:
-            prompt = f"Write a professional banking RFP section for: {context}. Style: Formal, Legal, Indian Banking Standards."
+    st.subheader("Smart Drafting Engine")
+    context = st.text_area("RFP Section Description:", placeholder="e.g. Technical requirements for UPI Switch upgrade...")
+    if st.button("Generate Official Draft", type="primary"):
+        with st.status("🛠️ Working...") as s:
+            s.write("Applying Banking Rules...")
+            s.write("Consulting Knowledge Memory...")
+            prompt = f"{SYSTEM_PROMPT}\n\nBased on past tenders: {all_text[:10000]}\n\nDraft a formal RFP section for: {context}"
             response = model.generate_content(prompt)
             st.markdown(response.text)
-            s.update(label="Draft Complete", state="complete")
-            
-            pdf_out = create_pdf(response.text)
-            st.download_button("Download .pdf", data=pdf_out, file_name="draft.pdf")
+            st.download_button("Download Draft", data=create_pdf(response.text), file_name="RFP_Draft.pdf")
+            s.update(label="Draft Complete!", state="complete")
 
 with tab2:
     st.subheader("Grounded Query Assistant")
-    query = st.text_input("Ask a specific question about the uploaded document:")
-    
-    if query and 'raw_text' in st.session_state:
-        with st.status("Analyzing RFP...") as s:
-            # RAG-style prompt with grounding
-            prompt = f"Context: {st.session_state.raw_text[:25000]}\nQuestion: {query}\nAnswer strictly based on context. If not found, say so."
+    query = st.text_input("Ask about the uploaded documents:")
+    if query and all_text:
+        with st.status("Searching Sources...") as s:
+            prompt = f"{SYSTEM_PROMPT}\n\nStrictly answer using this context: {all_text[:30000]}\n\nQuestion: {query}\n\nFormat your answer as:\nANSWER: [Text]\nSOURCE SNIPPET: [3 lines of original text from document]"
             response = model.generate_content(prompt)
-            
-            # Calculate Confidence Score from Logprobs
-            try:
-                avg_logprob = response.candidates[0].avg_logprobs
-                confidence = math.exp(avg_logprob) * 100
-            except: confidence = 85.0 # Fallback
-
-            st.chat_message("assistant").write(response.text)
-            st.progress(confidence/100, text=f"AI Confidence Score: {confidence:.1f}%")
-            s.update(label="Analysis Finished", state="complete")
-    elif query:
-        st.error("Upload a PDF first!")
+            st.info(response.text)
+            s.update(label="Verified Answer Found", state="complete")
 
 with tab3:
-    st.subheader("Corrigendum Management")
-    change_desc = st.text_area("List the vendor queries or changes (e.g., 'Vendor A asks if EMD can be BG instead of DD')")
-    if st.button("Generate Official Corrigendum"):
-        with st.spinner("Refining language..."):
-            prompt = f"Create a formal Corrigendum table based on these changes: {change_desc}. Include 'Original Clause' and 'Amended Clause' columns."
+    st.subheader("Corrigendum Engine")
+    raw_queries = st.text_area("Paste Vendor Queries:")
+    if st.button("Generate Corrigendum Table"):
+        with st.status("Structuring Data...") as s:
+            prompt = f"{SYSTEM_PROMPT}\n\nConvert these queries into a formal bank corrigendum table with 'Reference Clause', 'Query', and 'Clarification' columns. Queries: {raw_queries}"
             response = model.generate_content(prompt)
             st.markdown(response.text)
+            st.download_button("Download Official Corrigendum", data=create_pdf(response.text), file_name="Corrigendum.pdf")
+            s.update(label="Table Published", state="complete")

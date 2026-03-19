@@ -98,7 +98,7 @@ if not api_key:
     st.info("👈 Enter API Key to begin.")
     st.stop()
 
-genai.configure(api_key=api_key)
+genai.Client(api_key=api_key)
 model = genai.GenerativeModel('gemini-1.5-flash') # Using 1.5 for better context handling
 
 # --- 5. SIDEBAR: BRANDING & METRICS ---
@@ -133,8 +133,8 @@ with tab1:
             s.write("Applying Banking Rules...")
             s.write("Consulting Knowledge Memory...")
             prompt = f"{SYSTEM_PROMPT}\n\nBased on past tenders: {all_text[:10000]}\n\nDraft a formal RFP section for: {context}"
-            response = model.generate_content(prompt)
-            st.markdown(response.text)
+            response = client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+            st.write(response.text)
             st.download_button("Download Draft", data=create_pdf(response.text), file_name="RFP_Draft.pdf")
             s.update(label="Draft Complete!", state="complete")
 
@@ -144,8 +144,8 @@ with tab2:
     if query and all_text:
         with st.status("Searching Sources...") as s:
             prompt = f"{SYSTEM_PROMPT}\n\nStrictly answer using this context: {all_text[:30000]}\n\nQuestion: {query}\n\nFormat your answer as:\nANSWER: [Text]\nSOURCE SNIPPET: [3 lines of original text from document]"
-            response = model.generate_content(prompt)
-            st.info(response.text)
+            response = client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+            st.write(response.text)
             s.update(label="Verified Answer Found", state="complete")
 
 with tab3:
@@ -153,8 +153,7 @@ with tab3:
     raw_queries = st.text_area("Paste Vendor Queries:")
     if st.button("Generate Corrigendum Table"):
         with st.status("Structuring Data...") as s:
-            prompt = f"{SYSTEM_PROMPT}\n\nConvert these queries into a formal bank corrigendum table with 'Reference Clause', 'Query', and 'Clarification' columns. Queries: {raw_queries}"
-            response = model.generate_content(prompt)
-            st.markdown(response.text)
+            response = client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+            st.write(response.text)
             st.download_button("Download Official Corrigendum", data=create_pdf(response.text), file_name="Corrigendum.pdf")
             s.update(label="Table Published", state="complete")

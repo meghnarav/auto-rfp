@@ -32,45 +32,96 @@ def extract_metadata(text):
         "emd": emd.group(1) if emd else "TBD"
     }
 
-# --- 3. PAGE SETUP & CSS ---
+# --- 2. CUSTOM CSS ---
+
 st.set_page_config(page_title="SafeDraft AI | Indian Bank", page_icon="🏦", layout="wide")
 
 st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-    
-    .stApp {
-        background: #f8fafc !important;
-        font-family: 'Inter', sans-serif !important;
-    }
-    /* Sidebar styling */
-    section[data-testid="stSidebar"] {
-        background-color: #ffffff !important;
-        border-right: 1px solid #e2e8f0 !important;
-    }
-    /* Metric Cards */
-    div[data-testid="stMetric"] {
-        background: white !important;
-        border-radius: 12px !important;
-        padding: 15px !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
-        border: 1px solid #e2e8f0 !important;
-    }
-    /* Custom Blue Buttons */
-    div.stButton > button:first-child {
-        background-color: #00529b !important;
-        color: white !important;
-        border-radius: 8px !important;
-        border: none !important;
-        width: 100%;
-        height: 3em;
-    }
-    /* Tab Selection */
-    button[data-baseweb="tab"] {
-        font-weight: 600 !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+<style>
+/* 1. Global Font */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+.stApp {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    background-color: #fcfcfd !important;
+}
+
+/* 2. Hide Streamlit Branding */
+.css-18e3th9 {visibility: hidden;}  /* top-right hamburger menu */
+.css-1lsmgbg.egzxvld0 {visibility: hidden;} /* footer */
+
+/* 3. Sidebar (Glassmorphism + subtle shadow) */
+[data-testid="stSidebar"] {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-right: 1px solid #f1f5f9 !important;
+    box-shadow: 4px 0 10px rgba(0,0,0,0.02);
+}
+
+/* 4. Metric Cards */
+div[data-testid="stMetric"] {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    transition: all 0.3s ease;
+}
+div[data-testid="stMetric"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    border-color: #00529b !important;
+}
+
+/* 5. Primary Buttons */
+button[kind="primary"] {
+    background: linear-gradient(135deg, #00529b 0%, #003d73 100%) !important;
+    color: white !important;
+    border-radius: 12px !important;
+    border: none !important;
+    padding: 0.6rem 2rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+button[kind="primary"]:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
+/* 6. Tabs Styling */
+.css-1r6slb0 button {
+    border-radius: 10px !important;
+    background-color: transparent !important;
+    border: none !important;
+    color: #64748b !important;
+    padding: 6px 12px;
+    margin-right: 8px;
+    transition: all 0.2s ease;
+}
+.css-1r6slb0 button[aria-selected="true"] {
+    background-color: #ffffff !important;
+    color: #00529b !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* 7. Input fields (optional) */
+.stTextInput>div>div>input {
+    border-radius: 8px !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 0.5rem 0.75rem !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# --- 3.5. Demo Content ---
+st.title("SafeDraft AI | Indian Bank")
+st.subheader("Dashboard")
+st.button("Primary Action")
+
+tab1, tab2 = st.tabs(["Overview", "Transactions"])
+with tab1:
+    st.metric("Revenue", "$120K", "+12%")
+with tab2:
+    st.metric("Expenses", "$80K", "-5%")
+
 
 # --- 4. API & CLIENT INITIALIZATION ---
 api_key = st.sidebar.text_input("Gemini API Key", type="password")

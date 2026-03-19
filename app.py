@@ -1,5 +1,5 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 from pypdf import PdfReader
 import os
 from dotenv import load_dotenv
@@ -33,7 +33,7 @@ def extract_metadata(text):
 # --- 3. PAGE SETUP ---
 st.set_page_config(page_title="SafeDraft AI | Indian Bank", page_icon="🏦", layout="wide")
 
-st.markdown("""
+st.markdown(f"""
     <style>
     /* Import Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');

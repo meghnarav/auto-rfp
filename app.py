@@ -30,14 +30,76 @@ def extract_metadata(text):
         "emd": emd.group(2) if emd else "TBD"
     }
 
-# --- 3. PAGE SETUP (The Vibe Overhaul) ---
-st.set_page_config(page_title="Auto-RFP Pro | Indian Bank", page_icon="🏦", layout="wide")
+# --- 3. PAGE SETUP ---
+st.set_page_config(page_title="SafeDraft AI | Indian Bank", page_icon="🏦", layout="wide")
 
-# Custom CSS for that "Bank App" look
 st.markdown("""
     <style>
-    .stMetric { background-color: #ffffff; border-left: 5px solid #00529b; padding: 10px; border-radius: 5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
-    [data-testid="stSidebar"] { background-color: #f0f4f8; }
+    /* Import Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    html, body, [class*="css"]  {
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Main App Background */
+    .stApp {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+    
+    /* Sidebar "Glass" Effect */
+    [data-testid="stSidebar"] {
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        backdrop-filter: blur(10px);
+        border-right: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Metric Cards - React Style */
+    div[data-testid="stMetric"] {
+        background: white;
+        border-radius: 15px !important;
+        padding: 20px !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #edf2f7;
+    }
+
+    /* Tab Styling - The "Shadcn" Look */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: #f1f5f9;
+        padding: 6px;
+        border-radius: 12px;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 8px;
+        padding: 10px 20px;
+        background-color: transparent;
+        border: none;
+        color: #64748b;
+        transition: all 0.2s;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background-color: #ffffff !important;
+        color: #00529b !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Big Blue "Action" Button */
+    .stButton>button {
+        background: linear-gradient(90deg, #00529b 0%, #0073cf 100%);
+        color: white;
+        border-radius: 10px;
+        border: none;
+        padding: 0.6rem 1rem;
+        font-weight: 600;
+        transition: transform 0.1s;
+    }
+    .stButton>button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 82, 155, 0.3);
+    }
     </style>
     """, unsafe_allow_html=True)
 

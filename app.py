@@ -29,7 +29,7 @@ st.markdown("""
     <style>
     .stMetric { background-color: #f0f2f6; padding: 10px; border-radius: 10px; }
     </style>
-    """, unsafe_ok_safe=True)
+    """, unsafe_allow_html=True)
 
 st.title("🏦 Auto-RFP: Enterprise Lifecycle Management")
 st.caption("Solo Developer Edition | Powered by Gemini 2.5 Flash")

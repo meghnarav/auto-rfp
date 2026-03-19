@@ -1,3 +1,6 @@
 .env
 sample.pdf
 test.py
+dist
+.DS_Store
+node_modules
